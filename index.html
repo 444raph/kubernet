@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formation Kubernetes - Commandes & QCM</title>
+    <style>
+        :root {
+            --primary: #326ce5; /* Kubernetes Blue */
+            --bg-color: #f8f9fa;
+            --text-color: #333;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+        nav {
+            display: flex;
+            justify-content: center;
+            background: #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        nav button {
+            background: none;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            color: #555;
+            border-bottom: 3px solid transparent;
+        }
+        nav button.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+        nav button:hover {
+            color: var(--primary);
+        }
+        main {
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 0 20px;
+        }
+        .section {
+            display: none;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .section.active {
+            display: block;
+        }
+        h2 { border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        code {
+            background: #eef;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            color: #d63384;
+        }
+        .question-card {
+            background: #fafafa;
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+        }
+        .question-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+        .option-label {
+            display: block;
+            padding: 10px;
+            background: #fff;
+            border: 1px solid #ccc;
+            margin-bottom: 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .option-label:hover {
+            background: #f0f8ff;
+            border-color: var(--primary);
+        }
+        .option-label input {
+            margin-right: 10px;
+        }
+        .btn-submit {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+            display: block;
+            width: 100%;
+        }
+        .btn-submit:hover {
+            background: #2554b3;
+        }
+        #result-box {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 5px;
+            font-weight: bold;
+            text-align: center;
+            display: none;
+        }
+        .correct { background: #d4edda !important; border-color: #c3e6cb !important; }
+        .wrong { background: #f8d7da !important; border-color: #f5c6cb !important; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Kubernetes : Commandes et Gestion</h1>
+    <p>Ressource de révision basée sur les notes de cours</p>
+</header>
+
+<nav>
+    <button id="btn-cours" class="active" onclick="showTab('cours')">Cours et Commandes</button>
+    <button id="btn-qcm" onclick="showTab('qcm')">QCM (Mode Entraînement)</button>
+</nav>
+
+<main>
+    <!-- PARTIE COURS -->
+    <section id="cours" class="section active">
+        <h2>1. Environnement et Outils</h2>
+        <ul>
+            <li><code>labs-config.conf</code> : Contient les certificats pour authentifier la connexion.</li>
+            <li><code>labs-config.sh</code> : Script pour configurer l'environnement. À exécuter avec <code>source labs-config.sh</code>.</li>
+            <li><code>kubectl</code> : Outil officiel (utilise <code>~/.kube/config</code>). Test de connexion : <code>kubectl cluster-info</code>.</li>
+            <li><code>k9s</code> : Interface graphique TUI dans le terminal pour la surveillance.</li>
+        </ul>
+
+        <h2>2. Gestion des Pods</h2>
+        <ul>
+            <li><strong>Pod</strong> : Plus petite unité logique, contient un ou plusieurs conteneurs.</li>
+            <li><strong>États</strong> : Pending, Running, Succeeded, Failed.</li>
+            <li><code>kubectl apply -f ns-login.yaml</code> : Crée l'espace de nom.</li>
+            <li><code>kubectl apply -f nginx-pod.yaml</code> : Déploie le pod.</li>
+            <li><code>kubectl get pods -n ns-rlaurens</code> : Liste les pods.</li>
+            <li><code>kubectl describe pod nginx-pod -n ns-rlaurens</code> : Affiche les détails et événements.</li>
+            <li><code>kubectl get pod nginx-pod -n ns-rlaurens -o jsonpath='{.spec.containers[*].name}'</code> : Isole le nom du conteneur.</li>
+            <li><code>kubectl exec -it nginx-pod -n ns-rlaurens -- /bin/bash</code> : Ouvre un shell interactif.</li>
+            <li><code>kubectl delete pod nginx-pod -n ns-rlaurens</code> : Supprime le pod.</li>
+        </ul>
+
+        <h2>3. ReplicaSet & Deployment</h2>
+        <ul>
+            <li><strong>ReplicaSet</strong> : Maintient un ensemble stable de Pods.</li>
+            <li><strong>Deployment</strong> : Gère les ReplicaSets, permet le Rollback et le Rolling Update.</li>
+            <li><code>kubectl get pods -n ns-rlaurens -w</code> : Surveiller en temps réel.</li>
+            <li><code>kubectl scale deployment dep-nginx --replicas=4 -n ns-rlaurens</code> : Scale UP (augmente la charge).</li>
+            <li><code>kubectl set image deployment/dep-nginx nginx=nginx:1.16.1 --record=true</code> : Mise à jour de l'image (historisée).</li>
+            <li><code>kubectl rollout undo deployment/dep-nginx --to-revision=2 -n ns-rlaurens</code> : Rollback d'une version erronée.</li>
+        </ul>
+
+        <h2>4. Services (Réseau)</h2>
+        <ul>
+            <li><strong>ClusterIP</strong> : Type par défaut. Expose le service sur une IP interne (ex: Backend de base de données).</li>
+            <li><strong>NodePort</strong> : Expose le service vers l'extérieur (ex: Frontend web).</li>
+            <li><code>kubectl port-forward svc/svc-nodeport-dep-app-guestbook 9999:80 -n ns-rlaurens</code> : Transfert de port pour accès local.</li>
+        </ul>
+    </section>
+
+    <!-- PARTIE QCM -->
+    <section id="qcm" class="section">
+        <h2>Quiz sur les Commandes Kubernetes</h2>
+        <p>Ce test sélectionne aléatoirement 20 questions parmi une base complète de plus de 100 questions.</p>
+        <div id="qcm-container"></div>
+        <button class="btn-submit" onclick="calculerScore()">Valider mes réponses</button>
+        <div id="result-box"></div>
+        <button class="btn-submit" style="display:none; margin-top:10px; background:#6c757d;" id="btn-restart" onclick="initQCM()">Recommencer un nouveau QCM</button>
+    </section>
+</main>
+
+<script>
+    // 1. Définition des concepts de base pour enrichir le pool manuellement
+    let pool = [
+        { q: "Qu'est-ce qu'un Pod dans Kubernetes ?", o: ["La plus petite unité de calcul déployable", "Un espace de stockage persistant", "Un équilibreur de charge externe", "Un nœud physique du cluster"], a: 0 },
+        { q: "Quel est le rôle du fichier labs-config.conf ?", o: ["Contenir les certificats d'authentification au cluster", "Stocker les logs des applications", "Définir l'architecture réseau", "Contenir le code source de l'application"], a: 0 },
+        { q: "Que permet de faire l'outil k9s ?", o: ["Naviguer et surveiller les ressources via une interface graphique TUI", "Compiler des images Docker", "Créer automatiquement des clusters", "Générer des fichiers YAML"], a: 0 },
+        { q: "Lequel de ces états N'EST PAS un état valide pour le cycle de vie d'un Pod ?", o: ["Paused", "Pending", "Running", "Succeeded"], a: 0 },
+        { q: "Que permet de faire le flag --record=true lors de l'application d'un déploiement ?", o: ["Sauvegarder la commande dans l'historique des révisions", "Activer les logs détaillés", "Enregistrer le trafic réseau", "Verrouiller le pod contre la suppression"], a: 0 },
+        { q: "Quel type de Service doit être utilisé pour isoler une base de données en interne ?", o: ["ClusterIP", "NodePort", "LoadBalancer", "ExternalName"], a: 0 },
+        { q: "Que permet la commande kubectl port-forward ?", o: ["Simuler un accès externe via un transfert de port local", "Ouvrir définitivement un port sur le routeur physique", "Changer le port d'écoute d'un conteneur en direct", "Rediriger le trafic d'un cluster à un autre"], a: 0 }
+    ];
+
+    // 2. Génération programmatique stricte pour dépasser 100 questions (Pool dynamique)
+    const resources = [
+        { res: 'pods', label: 'les Pods' },
+        { res: 'rs', label: 'les ReplicaSets' },
+        { res: 'deployment', label: 'les Deployments' },
+        { res: 'svc', label: 'les Services' },
+        { res: 'namespace', label: 'les Namespaces' }
+    ];
+    
+    const actions = [
+        { verb: 'afficher la liste de', cmd: 'get' },
+        { verb: 'décrire en détail', cmd: 'describe' },
+        { verb: 'supprimer', cmd: 'delete' }
+    ];
+    
+    const namespaces = ['ns-rlaurens', 'default', 'kube-system', 'production', 'dev-env'];
+
+    // Génération des combinaisons de commandes (3 actions x 5 ressources x 5 namespaces = 75 questions)
+    actions.forEach(action => {
+        resources.forEach(resource => {
+            namespaces.forEach(ns => {
+                pool.push({
+                    q: `Quelle commande permet de ${action.verb} ${resource.label} dans le namespace '${ns}' ?`,
+                    o: [
+                        `kubectl ${action.cmd} ${resource.res} -n ${ns}`,
+                        `kubectl ${action.cmd} -n ${ns} ${resource.res}`, // Syntaxe moins conventionnelle
+                        `kubectl ${resource.res} ${action.cmd} -n ${ns}`,
+                        `kubectl ${action.cmd} ${ns} ${resource.res}`
+                    ],
+                    a: 0
+                });
+            });
+        });
+    });
+
+    // Génération des questions de formatage JSON/YAML (2 formats x 5 ressources = 10 questions)
+    const formats = ['yaml', 'json'];
+    formats.forEach(format => {
+        resources.forEach(resource => {
+            pool.push({
+                q: `Comment formater la sortie de la liste pour ${resource.label} au format ${format.toUpperCase()} (dans ns-rlaurens) ?`,
+                o: [
+                    `kubectl get ${resource.res} -n ns-rlaurens -o ${format}`,
+                    `kubectl get ${resource.res} -n ns-rlaurens --format ${format}`,
+                    `kubectl describe ${resource.res} -n ns-rlaurens -f ${format}`,
+                    `kubectl show ${resource.res} as ${format}`
+                ],
+                a: 0
+            });
+        });
+    });
+
+    // Génération des questions de scaling (2 ressources x 5 réplicas = 10 questions)
+    const scaleRes = ['rs rs-nginx', 'deployment dep-nginx'];
+    const scaleNums = [2, 3, 4, 5, 10];
+    scaleRes.forEach(sr => {
+        scaleNums.forEach(num => {
+            pool.push({
+                q: `Quelle commande permet d'ajuster l'échelle (scale) de '${sr}' à ${num} réplicas dans ns-rlaurens ?`,
+                o: [
+                    `kubectl scale ${sr} --replicas=${num} -n ns-rlaurens`,
+                    `kubectl set replicas ${sr} ${num} -n ns-rlaurens`,
+                    `kubectl scale --count=${num} ${sr}`,
+                    `kubectl update ${sr} -r ${num}`
+                ],
+                a: 0
+            });
+        });
+    });
+
+    // Génération des questions liées aux fichiers YAML (5 fichiers = 5 questions)
+    const fichiers = ['ns-login.yaml', 'nginx-pod.yaml', 'rs-nginx.yaml', 'dep-nginx.yaml', 'dep-redis.yaml'];
+    fichiers.forEach(fichier => {
+        pool.push({
+            q: `Quelle commande permet d'appliquer la configuration contenue dans '${fichier}' ?`,
+            o: [
+                `kubectl apply -f ${fichier}`,
+                `kubectl create yaml ${fichier}`,
+                `kubectl deploy -file ${fichier}`,
+                `kubectl apply --source ${fichier}`
+            ],
+            a: 0
+        });
+    });
+
+    // Fonction de mélange de tableau (Fisher-Yates)
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+    }
+
+    let currentQuestions = [];
+
+    function initQCM() {
+        // Sélectionner aléatoirement 20 questions du pool total
+        shuffleArray(pool);
+        currentQuestions = pool.slice(0, 20);
+        
+        const container = document.getElementById("qcm-container");
+        container.innerHTML = "";
+        
+        currentQuestions.forEach((q, index) => {
+            // Créer une copie des options pour les mélanger, tout en traquant la bonne réponse
+            let optionsWithIndex = q.o.map((opt, i) => ({ text: opt, isCorrect: i === q.a }));
+            shuffleArray(optionsWithIndex);
+
+            let html = `<div class="question-card" id="q-card-${index}">
+                <div class="question-title">${index + 1}. ${q.q}</div>`;
+                
+            optionsWithIndex.forEach((opt, i) => {
+                html += `
+                <label class="option-label" id="label-${index}-${i}">
+                    <input type="radio" name="q${index}" value="${opt.isCorrect}">
+                    ${opt.text}
+                </label>`;
+            });
+            html += `</div>`;
+            container.innerHTML += html;
+        });
+
+        // Réinitialiser l'UI
+        document.getElementById("result-box").style.display = "none";
+        document.querySelector(".btn-submit").style.display = "block";
+        document.getElementById("btn-restart").style.display = "none";
+    }
+
+    function calculerScore() {
+        let score = 0;
+        currentQuestions.forEach((q, index) => {
+            const radios = document.getElementsByName(`q${index}`);
+            let answered = false;
+            radios.forEach((radio, i) => {
+                const label = document.getElementById(`label-${index}-${i}`);
+                label.classList.remove('correct', 'wrong');
+                
+                if (radio.checked) {
+                    answered = true;
+                    if (radio.value === "true") {
+                        score++;
+                        label.classList.add('correct');
+                    } else {
+                        label.classList.add('wrong');
+                    }
+                }
+                // Surligner la bonne réponse si erreur ou omission
+                if (radio.value === "true" && !radio.checked) {
+                    label.classList.add('correct');
+                }
+                radio.disabled = true; // Empêcher la modification
+            });
+        });
+
+        const resultBox = document.getElementById("result-box");
+        resultBox.style.display = "block";
+        resultBox.className = score >= 10 ? "correct" : "wrong";
+        resultBox.innerHTML = `Votre score : ${score} / 20`;
+        
+        document.querySelector(".btn-submit").style.display = "none";
+        document.getElementById("btn-restart").style.display = "block";
+    }
+
+    // Gestion des onglets
+    function showTab(tabName) {
+        document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+        document.querySelectorAll('nav button').forEach(btn => btn.classList.remove('active'));
+        
+        document.getElementById(tabName).classList.add('active');
+        document.getElementById(`btn-${tabName}`).classList.add('active');
+    }
+
+    // Initialisation au chargement
+    window.onload = initQCM;
+</script>
+
+</body>
+</html>
